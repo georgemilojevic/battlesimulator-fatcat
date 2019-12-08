@@ -3,22 +3,22 @@
 namespace App\Controller;
 
 use App\Entity\Army;
+use App\Entity\Game;
 use App\Form\ArmyType;
-use Symfony\Bundle\MakerBundle\Validator;
+use App\Utils\BattleStrategy;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class GameController extends AbstractController
 {
-    /** @var ValidatorInterface $validator */
-    private $validator;
+    /** @var BattleStrategy $battleStrategy */
+    private $battleStrategy;
 
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(BattleStrategy $battleStrategy)
     {
-        $this->validator = $validator;
+        $this->battleStrategy = $battleStrategy;
     }
 
     /**
@@ -26,7 +26,7 @@ class GameController extends AbstractController
      * @Route("/", name="index")
      * @return Response
      */
-    public function index(Request $request, ValidatorInterface $validator)
+    public function index(Request $request)
     {
         $army = new Army();
 
@@ -45,29 +45,26 @@ class GameController extends AbstractController
 
         return $this->render('main.html.twig', [
             'form' => $form->createView(),
-            'errors' => null,
+            'armyCount' => count($this->getDoctrine()->getRepository(Army::class)->findAll()),
+            'games' => null,
         ]);
     }
 
     /**
-     * @Route("/game/create", name="create-game")
+     * @Route("/game-start", name="start-game")
      */
-    public function createAction()
+    public function startAction()
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/GameController.php',
-        ]);
+        $this->addFlash('warning', 'Once at least 10 armies have joined, the game can start.');
+        return $this->redirect('/');
     }
 
     /**
-     * @Route("/game/list", name="list-games")
+     * @Route("/game/list-all", name="list-all-games")
      */
-    public function listAction()
+    public function listAllGamesAction()
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/GameController.php',
-        ]);
+        $games = $this->getDoctrine()->getRepository(Game::class)->findAll();
+        return $this->render('game/list-games.html.twig', ['games' => $games]);
     }
 }

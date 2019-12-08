@@ -2,8 +2,9 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ArmyRepository")
@@ -29,7 +30,7 @@ class Army
     private $name;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="float")
      */
     private $units;
 
@@ -37,6 +38,16 @@ class Army
      * @ORM\Column(type="string", length=50)
      */
     private $attack_strategy;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Game", mappedBy="army_id")
+     */
+    private $games;
+
+    public function __construct()
+    {
+        $this->games = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -55,17 +66,16 @@ class Army
         return $this;
     }
 
-    public function getUnits(): ?int
+    public function getUnits(): ?float
     {
         return $this->units;
     }
 
-    public function setUnits(int $units): self
+    public function setUnits(float $units): self
     {
-        if ($units >= self::MIN_UNITS && $units <= self::MAX_UNITS) {
-            $this->units = $units;
-            return $this;
-        }
+        $this->units = $units;
+
+        return $this;
     }
 
     public function getAttackStrategy(): ?string
@@ -75,11 +85,44 @@ class Army
 
     public function setAttackStrategy(string $attack_strategy): self
     {
-        if (!in_array($attack_strategy, array(self::ATTACK_RANDOM, self::ATTACK_WEAKEST, self::ATTACK_STRONGEST))) {
-            throw new \InvalidArgumentException("Invalid Attack Type");
-        }
         $this->attack_strategy = $attack_strategy;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Game[]
+     */
+    public function getGames(): Collection
+    {
+        return $this->games;
+    }
+
+    public function addGame(Game $game): self
+    {
+        if (!$this->games->contains($game)) {
+            $this->games[] = $game;
+            $game->setArmyId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGame(Game $game): self
+    {
+        if ($this->games->contains($game)) {
+            $this->games->removeElement($game);
+            // set the owning side to null (unless already changed)
+            if ($game->getArmyId() === $this) {
+                $game->setArmyId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function countArmies()
+    {
+        
     }
 }
