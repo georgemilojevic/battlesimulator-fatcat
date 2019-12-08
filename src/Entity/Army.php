@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Repository\ArmyRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -38,6 +39,9 @@ class Army
      * @ORM\Column(type="string", length=50)
      */
     private $attack_strategy;
+
+    /** @var ArmyRepository $armyRepository */
+    private $armyRepository;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Game", mappedBy="army_id")
@@ -121,8 +125,15 @@ class Army
         return $this;
     }
 
-    public function countArmies()
+    public function findByIdDesc()
     {
-        
+        return $this->armyRepository->findOneBy(['id' => 'DESC']);
+    }
+
+    public function findByStrategy($strategy, $sortOrder, $limit)
+    {
+        return $this->armyRepository->findBy([
+            'attack_strategy' => $strategy,
+        ], ['units' => $sortOrder], $limit);
     }
 }

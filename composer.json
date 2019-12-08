@@ -7,6 +7,7 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "doctrine/annotations": "^1.8",
+        "league/tactician-bundle": "^1.1",
         "sensio/framework-extra-bundle": "^5.5",
         "symfony/console": "4.4.*",
         "symfony/dotenv": "4.4.*",
