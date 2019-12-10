@@ -68,7 +68,7 @@ class BattleAction
      * @throws Exception\NotEnoughArmiesException
      * @throws Exception\ZeroArmiesCountException
      */
-    public function attack($game)
+    public function __invoke($game)
     {
         ($this->StartGame)($game);
 
@@ -84,8 +84,8 @@ class BattleAction
         return $response;
     }
 
-    public function reset($id)
-    {
-        return ($this->ResetGame)($id);
-    }
+//    public function reset($id)
+//    {
+//        return ($this->ResetGame)($id);
+//    }
 }

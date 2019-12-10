@@ -76,15 +76,15 @@ class GameController extends AbstractController
     }
 
     /**
-     * @param Game $game
+     * @param BattleAction $battleAction
      * @return string
      *
      * @Route("/start-game", name="start-game")
      */
-    public function startAction($game)
+    public function startAction(BattleAction $battleAction, $game)
     {
         try {
-            $this->battleAction->attack($game);
+            ($battleAction)($game);
         } catch (ExceptionInterface $exception) {
             $this->addFlash('info', $exception->getMessage());
         }
