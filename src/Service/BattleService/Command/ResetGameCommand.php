@@ -5,24 +5,32 @@ namespace App\Service\BattleService\Command;
 use App\Entity\Army;
 use App\Entity\Game;
 use App\Entity\GameLog;
-use App\Service\BattleService\BattleAction;
 use App\Service\BattleService\Exception\GameNotFoundException;
+use Doctrine\ORM\EntityManagerInterface;
 
-class ResetGameCommand extends BattleAction
+class ResetGameCommand
 {
+    /** @var EntityManagerInterface $em */
+    private $em;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->em = $entityManager;
+    }
+
     /**
      * @param $game Game
      * @throws GameNotFoundException
      */
-    public function resetGame($game)
+    public function __invoke($game)
     {
         $firstLog = $this->em->getRepository(GameLog::class)
             ->findBy(['game_id' => $game], ['id' => 'ASC'], 1);
 
         $data = json_decode($firstLog->getGameLog(), true);
         foreach ($data as $armyLog) {
-            $this->resetArmyCount($armyLog['attackingArmy']['armyId'], $armyLog['attackingArmy']['units_previous']);
-            $this->resetArmyCount($armyLog['attackedArmy']['armyId'], $armyLog['attackedArmy']['units_previous']);
+            $this->resetUnitsCount($armyLog['attackingArmy']['armyId'], $armyLog['attackingArmy']['units_previous']);
+            $this->resetUnitsCount($armyLog['attackedArmy']['armyId'], $armyLog['attackedArmy']['units_previous']);
         }
 
         /** @var Game $gameReset */
@@ -41,7 +49,7 @@ class ResetGameCommand extends BattleAction
      * @param $id
      * @param $units
      */
-    public function resetArmyCount($id, $units)
+    public function resetUnitsCount($id, $units)
     {
         /** @var Army $army */
         $army = $this->em->getRepository(Army::class)->findBy(['id' => $id]);

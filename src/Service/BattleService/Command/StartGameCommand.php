@@ -10,26 +10,22 @@ use App\Service\BattleService\BattleInterface;
 use App\Service\BattleService\Exception\NotEnoughArmiesException;
 use Doctrine\ORM\EntityManagerInterface;
 
-class StartGameCommand extends BattleAction
+class StartGameCommand
 {
-    /** @var Game $game */
-    private $game;
+    /** @var EntityManagerInterface $em */
+    private $em;
 
-    /**
-     * @return Game
-     * @throws NotEnoughArmiesException
-     */
-    public function __invoke()
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        return self::start($this->game);
+        $this->em = $entityManager;
     }
 
     /**
-     * @param $game Game
+     * @param Game $game
      * @return Game
      * @throws NotEnoughArmiesException
      */
-    public function start($game)
+    public function __invoke(Game $game)
     {
         $army = $this->em->getRepository(Army::class)
             ->findAll();

@@ -11,8 +11,9 @@ services:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Migrations,Tests,Kernel.php}'
 
-    App\Utils\:
-        resource: '../src/Utils/*'
+    App\Service\BattleService\:
+        resource: '../src/Service/BattleService/*'
+        tags: ['controller.service_arguments']
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class

@@ -3,38 +3,26 @@
 namespace App\Service\BattleService\Command;
 
 use App\Entity\Army;
-use App\Service\BattleService\BattleAction;
 use App\Service\BattleService\Exception\ZeroArmiesCountException;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\EntityManagerInterface;
 
-class FetchAttackedArmyCommand extends BattleAction
+class FetchAttackedArmyCommand
 {
-    /** @var Army $army */
-    private $army;
+    /** @var EntityManagerInterface $em */
+    private $em;
 
-    /** @var Criteria $criteria */
-    private $criteria;
-
-    public function __construct(Criteria $criteria)
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->criteria = $criteria;
+        $this->em = $entityManager;
     }
 
     /**
-     * @return object[]
+     * @param Army $attackingArmy
+     * @return mixed
      * @throws ZeroArmiesCountException
      */
-    public function __invoke()
-    {
-        return self::fetchAttackedArmyByStrategy($this->army);
-    }
-
-    /**
-     * @param $attackingArmy Army
-     * @return object[]
-     * @throws ZeroArmiesCountException
-     */
-    public function fetchAttackedArmyByStrategy($attackingArmy)
+    public function __invoke(Army $attackingArmy)
     {
         $criteria = new Criteria();
         $criteria

@@ -19,7 +19,7 @@
                 <a href="" data-toggle="modal" data-target="#createGameModal" class="btn btn-outline-dark btn-lg">Add Army</a>
             </div>
             <div class="btn-group btn-group-lg col-md-8" role="group" aria-label="...">
-                <a href="/game/play" class="btn btn-outline-secondary">Start / Run</a>
+                <a href="{{ path('start-game', { game: game}) }}" class="btn btn-outline-secondary">Start / Run</a>
                 <a href="/game/log{id}" class="btn btn-outline-secondary">Get Game Log</a>
                 <a href="/game/reset{id}" class="btn btn-outline-secondary">Reset Game</a>
             </div>

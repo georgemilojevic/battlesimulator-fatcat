@@ -14,6 +14,14 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GameController extends AbstractController
 {
+    /** @var BattleAction $battleAction */
+    private $battleAction;
+
+    public function __construct(BattleAction $battleAction)
+    {
+        $this->battleAction = $battleAction;
+    }
+
     /**
      * @return RedirectResponse
      *
@@ -39,6 +47,7 @@ class GameController extends AbstractController
      */
     public function show(Request $request, $id)
     {
+        /** @var Game $game */
         $game = $this->getDoctrine()
             ->getRepository(Game::class)
             ->find($id);
@@ -67,15 +76,15 @@ class GameController extends AbstractController
     }
 
     /**
-     * @param BattleAction $battleAction
+     * @param Game $game
      * @return string
      *
-     * @Route("/game/start", name="start-game")
+     * @Route("/start-game", name="start-game")
      */
-    public function startAction(BattleAction $battleAction)
+    public function startAction($game)
     {
         try {
-            $battleAction->attack();
+            $this->battleAction->attack($game);
         } catch (ExceptionInterface $exception) {
             $this->addFlash('info', $exception->getMessage());
         }

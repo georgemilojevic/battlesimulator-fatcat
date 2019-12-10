@@ -3,17 +3,25 @@
 namespace App\Service\BattleService\Command;
 
 use App\Entity\Army;
-use App\Service\BattleService\BattleAction;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
-class BattleCommand extends BattleAction
+class BattleCommand
 {
+    /** @var EntityManagerInterface $em */
+    private $em;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->em = $entityManager;
+    }
+
     /**
      * @param $attackedArmy Army
      * @param $attackingArmy Army
      * @return Response
      */
-    public function doAttack($attackedArmy, $attackingArmy)
+    public function __invoke($attackedArmy, $attackingArmy)
     {
         $attackedArmyUnits = $attackedArmy[0]->getUnits();
         $attackingArmyUnits = $attackingArmy->getUnits();

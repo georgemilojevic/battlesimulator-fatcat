@@ -62,8 +62,8 @@ class BattleAction
     }
 
     /**
-     * @param $game Game
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param $game
+     * @return mixed
      * @throws ChancesException
      * @throws Exception\NotEnoughArmiesException
      * @throws Exception\ZeroArmiesCountException
@@ -72,15 +72,14 @@ class BattleAction
     {
         ($this->StartGame)($game);
 
-        $attackingArmy = ($this->FetchAttackingArmy)();
+        $attackingArmy = ($this->FetchAttackingArmy)($game);
 
-        ($this->AttackChances)($attackingArmy());
+        ($this->AttackChances)($attackingArmy);
 
-        $attackedArmy = ($this->FetchAttackedArmy)($attackingArmy());
-        $attack = ($this->Battle)($attackingArmy, $attackedArmy);
+        $attackedArmy = ($this->FetchAttackedArmy)($attackingArmy);
+        $result = ($this->Battle)($attackingArmy, $attackedArmy);
 
-        $response = $attack->doAttack($attackedArmy(), $attackingArmy());
-        $response = ($this->UpdateGameLog)($response, $game);
+        $response = ($this->UpdateGameLog)($result, $game);
 
         return $response;
     }

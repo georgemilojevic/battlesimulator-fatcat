@@ -3,29 +3,16 @@
 namespace App\Service\BattleService\Command;
 
 use App\Entity\Army;
-use App\Service\BattleService\BattleAction;
 use App\Service\BattleService\Exception\ChancesException;
 
-class AttackChancesCommand extends BattleAction
+class AttackChancesCommand
 {
-    /** @var Army $army */
-    private $army;
-
     /**
-     * @return int
+     * @param Army $army
+     * @return bool
      * @throws ChancesException
      */
-    public function __invoke()
-    {
-        return $this->checkChances($this->army);
-    }
-
-    /**
-     * @param $army Army
-     * @return int
-     * @throws ChancesException
-     */
-    public function checkChances($army)
+    public function __invoke(Army $army)
     {
         $chances = mt_rand(0, 100);
         if ($chances < $army->getUnits()) {

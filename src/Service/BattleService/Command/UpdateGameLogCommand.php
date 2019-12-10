@@ -2,20 +2,18 @@
 
 namespace App\Service\BattleService\Command;
 
-use App\Entity\Game;
 use App\Entity\GameLog;
-use App\Service\BattleService\BattleAction;
 use Symfony\Component\HttpFoundation\Response;
 
-class UpdateGameLogCommand extends BattleAction
+class UpdateGameLogCommand
 {
     /**
      * @param Response $response
-     * @param $game Game
+     * @param $game
      * @return Response
      * @throws \Exception
      */
-    public function setGameLog(Response $response, $game)
+    public function __invoke(Response $response, $game)
     {
         if ($response->getContent()) {
             $result = json_decode($response->getContent(), true);
