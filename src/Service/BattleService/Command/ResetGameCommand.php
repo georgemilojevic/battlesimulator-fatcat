@@ -4,24 +4,20 @@ namespace App\Service\BattleService\Command;
 
 use App\Entity\Army;
 use App\Entity\Game;
+use App\Entity\GameLog;
 use App\Service\BattleService\BattleAction;
 use App\Service\BattleService\Exception\GameNotFoundException;
 
 class ResetGameCommand extends BattleAction
 {
-    public function __construct()
-    {
-        parent::__construct($this->em);
-    }
-
     /**
-     * @param $armyId Army
+     * @param $game Game
      * @throws GameNotFoundException
      */
-    public function resetGame($armyId)
+    public function resetGame($game)
     {
-        $firstLog = $this->em->getRepository(Game::class)
-            ->findBy(['army_id' => $armyId], ['id' => 'ASC'], 1);
+        $firstLog = $this->em->getRepository(GameLog::class)
+            ->findBy(['game_id' => $game], ['id' => 'ASC'], 1);
 
         $data = json_decode($firstLog->getGameLog(), true);
         foreach ($data as $armyLog) {
@@ -29,11 +25,12 @@ class ResetGameCommand extends BattleAction
             $this->resetArmyCount($armyLog['attackedArmy']['armyId'], $armyLog['attackedArmy']['units_previous']);
         }
 
-        /** @var Game $gameLogs */
-        $gameLogs[] = $this->em->getRepository(Game::class)
-            ->findBy(['army_id' => $armyId, 'status' => Game::IN_PROGRESS]);
-        foreach ($gameLogs as $gameLog) {
-            $this->em->remove($gameLog);
+        /** @var Game $gameReset */
+        $gameReset[] = $this->em->getRepository(Game::class)
+            ->findBy(['id' => $game->getId()]);
+
+        foreach ($gameReset as $game) {
+            $this->em->remove($game);
             $this->em->flush();
         }
 

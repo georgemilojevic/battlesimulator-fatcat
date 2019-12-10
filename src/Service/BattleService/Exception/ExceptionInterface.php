@@ -4,6 +4,6 @@
 namespace App\Service\BattleService\Exception;
 
 
-interface ExceptionInterface
+interface ExceptionInterface extends \Throwable
 {
 }

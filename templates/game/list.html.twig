@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    {% if games %}
+            <div class="col-md-4">
+                <a href="{{ path('index') }}" class="btn btn-outline-dark btn-lg">Home</a>
+                <hr>
+                {% for game in games %}
+                <ul class="list-group mb-3">
+                    <li class="list-group-item list-group-item-light">Game</li>
+                    <li class="list-group-item">Id:
+                        {{ game.id }}
+                        <a class="btn btn-light btn-sm float-right" href="{{ path('show-game', {id: game.id}) }}">Go to game</a>
+                    </li>
+                    <li class="list-group-item">Status:
+                        {% if game.status %}{{ game.status }} {% else %} Not started yet {% endif %}
+                    </li>
+                </ul>
+                {% endfor %}
+            </div>
+
+        {% elseif games is empty %}
+        <div class="col-md-4">
+            <ul class="list-group">
+                <li class="list-group-item list-group-item-light">No Games Found</li>
+                <li class="list-group-item"> / </li>
+            </ul>
+        </div>
+
+    {% endif %}
+
+{% endblock %}

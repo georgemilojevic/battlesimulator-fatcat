@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -25,14 +27,20 @@ class Game
     private $status;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Army", inversedBy="games")
+     * @ORM\OneToMany(targetEntity="App\Entity\Army", mappedBy="game")
      */
-    private $army;
+    private $armies;
 
     /**
-     * @ORM\Column(type="json", nullable=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\GameLog", mappedBy="game")
      */
-    private $game_log = [];
+    private $gameLogs;
+
+    public function __construct()
+    {
+        $this->armies = new ArrayCollection();
+        $this->gameLogs = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -51,26 +59,64 @@ class Game
         return $this;
     }
 
-    public function getArmyId(): ?Army
+    /**
+     * @return Collection|Army[]
+     */
+    public function getArmies(): Collection
     {
-        return $this->army_id;
+        return $this->armies;
     }
 
-    public function setArmyId(?Army $army): self
+    public function addArmy(Army $army): self
     {
-        $this->army = $army;
+        if (!$this->armies->contains($army)) {
+            $this->armies[] = $army;
+            $army->setGame($this);
+        }
 
         return $this;
     }
 
-    public function getGameLog(): ?array
+    public function removeArmy(Army $army): self
     {
-        return $this->game_log;
+        if ($this->armies->contains($army)) {
+            $this->armies->removeElement($army);
+            // set the owning side to null (unless already changed)
+            if ($army->getGame() === $this) {
+                $army->setGame(null);
+            }
+        }
+
+        return $this;
     }
 
-    public function setGameLog(?string $game_log): self
+    /**
+     * @return Collection|GameLog[]
+     */
+    public function getGameLogs(): Collection
     {
-        $this->game_log = $game_log;
+        return $this->gameLogs;
+    }
+
+    public function addGameLog(GameLog $gameLog): self
+    {
+        if (!$this->gameLogs->contains($gameLog)) {
+            $this->gameLogs[] = $gameLog;
+            $gameLog->setGame($this);
+        }
+
+        return $this;
+    }
+
+    public function removeGameLog(GameLog $gameLog): self
+    {
+        if ($this->gameLogs->contains($gameLog)) {
+            $this->gameLogs->removeElement($gameLog);
+            // set the owning side to null (unless already changed)
+            if ($gameLog->getGame() === $this) {
+                $gameLog->setGame(null);
+            }
+        }
 
         return $this;
     }

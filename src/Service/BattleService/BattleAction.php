@@ -3,9 +3,10 @@
 namespace App\Service\BattleService;
 
 use App\Entity\Army;
+use App\Entity\Game;
 use App\Service\BattleService\Command\AttackChancesCommand;
-use App\Service\BattleService\Command\AttackCommand;
-use App\Service\BattleService\Command\CreateGameCommand;
+use App\Service\BattleService\Command\BattleCommand;
+use App\Service\BattleService\Command\StartGameCommand;
 use App\Service\BattleService\Command\FetchAttackedArmyCommand;
 use App\Service\BattleService\Command\FetchAttackingArmyCommand;
 use App\Service\BattleService\Command\ResetGameCommand;
@@ -18,35 +19,74 @@ class BattleAction
     /** @var EntityManagerInterface $em */
     protected $em;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    /** @var FetchAttackingArmyCommand $FetchAttackingArmy */
+    private $FetchAttackingArmy;
+
+    /** @var StartGameCommand $StartGame */
+    private $StartGame;
+
+    /** @var AttackChancesCommand $AttackChances */
+    private $AttackChances;
+
+    /** @var FetchAttackedArmyCommand $FetchAttackedArmy */
+    private $FetchAttackedArmy;
+
+    /** @var BattleCommand $Battle */
+    private $Battle;
+
+    /** @var UpdateGameLogCommand $UpdateGameLog */
+    private $UpdateGameLog;
+
+    /** @var ResetGameCommand $ResetGame */
+    private $ResetGame;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        FetchAttackedArmyCommand $fetchAttackingArmy,
+        StartGameCommand $startGame,
+        AttackChancesCommand $attackChances,
+        FetchAttackedArmyCommand $fetchAttackedArmy,
+        BattleCommand $battle,
+        UpdateGameLogCommand $updateGameLog,
+        ResetGameCommand $resetGame
+    )
     {
         $this->em = $entityManager;
+        $this->StartGame = $startGame;
+        $this->FetchAttackingArmy = $fetchAttackingArmy;
+        $this->AttackChances = $attackChances;
+        $this->FetchAttackedArmy = $fetchAttackedArmy;
+        $this->Battle = $battle;
+        $this->UpdateGameLog = $updateGameLog;
+        $this->ResetGame = $resetGame;
     }
 
     /**
+     * @param $game Game
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws ChancesException
      * @throws Exception\NotEnoughArmiesException
      * @throws Exception\ZeroArmiesCountException
      */
-    public function attack()
+    public function attack($game)
     {
-        $attackingArmy = new FetchAttackingArmyCommand($this->em);
-        $createGame = new CreateGameCommand($this->em, $attackingArmy());
-        $createGame();
-        $chances = new AttackChancesCommand($this->em, $attackingArmy());
-        $chances();
-        $attackedArmy = new FetchAttackedArmyCommand($this->em, $attackingArmy());
-        $attackedArmy();
-        $attack = new AttackCommand($this->em);
+        ($this->StartGame)($game);
+
+        $attackingArmy = ($this->FetchAttackingArmy)();
+
+        ($this->AttackChances)($attackingArmy());
+
+        $attackedArmy = ($this->FetchAttackedArmy)($attackingArmy());
+        $attack = ($this->Battle)($attackingArmy, $attackedArmy);
+
         $response = $attack->doAttack($attackedArmy(), $attackingArmy());
-        $log = new UpdateGameLogCommand($this->em);
-        return $log->setGameLog($response, $attackingArmy());
+        $response = ($this->UpdateGameLog)($response, $game);
+
+        return $response;
     }
 
-    public static function reset($id)
+    public function reset($id)
     {
-        $resetGame = new ResetGameCommand();
-        return $resetGame->resetGame($id);
+        return ($this->ResetGame)($id);
     }
 }

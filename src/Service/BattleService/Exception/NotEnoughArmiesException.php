@@ -11,7 +11,7 @@ class NotEnoughArmiesException extends \Exception implements ExceptionInterface
      */
     public static function lessThanTenArmies(): self
     {
-        return new self(sprintf('Army count must be at least 10'));
+        return new self(sprintf('Army count must be at least 10 in game'));
     }
 
     /**
@@ -19,6 +19,6 @@ class NotEnoughArmiesException extends \Exception implements ExceptionInterface
      */
     public static function lessThanFiveArmies(): self
     {
-        return new self(sprintf('Five armies need to join before calling for Attack'));
+        return new self(sprintf('At least 5 armies need to join before the battle begins. GamStatus: In Progress'));
     }
 }

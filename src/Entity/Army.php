@@ -45,6 +45,11 @@ class Army
      */
     private $games;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Game", inversedBy="armies")
+     */
+    private $game;
+
     public function __construct()
     {
         $this->games = new ArrayCollection();
@@ -91,33 +96,14 @@ class Army
         return $this;
     }
 
-    /**
-     * @return Collection|Game[]
-     */
-    public function getGames(): Collection
+    public function getGame(): ?Game
     {
-        return $this->games;
+        return $this->game;
     }
 
-    public function addGame(Game $game): self
+    public function setGame(?Game $game): self
     {
-        if (!$this->games->contains($game)) {
-            $this->games[] = $game;
-            $game->setArmyId($this);
-        }
-
-        return $this;
-    }
-
-    public function removeGame(Game $game): self
-    {
-        if ($this->games->contains($game)) {
-            $this->games->removeElement($game);
-            // set the owning side to null (unless already changed)
-            if ($game->getArmyId() === $this) {
-                $game->setArmyId(null);
-            }
-        }
+        $this->game = $game;
 
         return $this;
     }

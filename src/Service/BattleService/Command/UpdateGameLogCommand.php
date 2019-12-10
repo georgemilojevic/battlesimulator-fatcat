@@ -3,57 +3,52 @@
 namespace App\Service\BattleService\Command;
 
 use App\Entity\Game;
+use App\Entity\GameLog;
 use App\Service\BattleService\BattleAction;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 class UpdateGameLogCommand extends BattleAction
 {
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        parent::__construct($entityManager);
-    }
-
     /**
-     * @param $response Response
+     * @param Response $response
+     * @param $game Game
      * @return Response
      * @throws \Exception
      */
-    public function setGameLog(Response $response, $attackingArmy)
+    public function setGameLog(Response $response, $game)
     {
         if ($response->getContent()) {
             $result = json_decode($response->getContent(), true);
 
-            $game = new Game();
-            foreach ($result as $resultLog) {
-dump($resultLog);
-                $log = json_encode([
+            $gameLog = new GameLog();
+            foreach ($result as $battleData) {
+
+                $body = json_encode([
                     'attackingArmy' => [
-                        'armyId' => $resultLog['armyId'],
-                        'attacking_army_name' => $resultLog['army_name'],
-                        'units_previous' => $resultLog['units_previous'],
-                        'units_current' => $resultLog['units_current'],
+                        'armyId' => $battleData['armyId'],
+                        'attacking_army_name' => $battleData['army_name'],
+                        'units_previous' => $battleData['units_previous'],
+                        'units_current' => $battleData['units_current'],
                     ],
                     'attackedArmy' => [
-                        'armyId' => $resultLog['armyId'],
-                        'attacked_army_name' => $resultLog['army_name'],
-                        'units_previous' => $resultLog['units_previous'],
-                        'units_current' => $resultLog['units_current'],
+                        'armyId' => $battleData['armyId'],
+                        'attacked_army_name' => $battleData['army_name'],
+                        'units_previous' => $battleData['units_previous'],
+                        'units_current' => $battleData['units_current'],
                     ],
                 ]);
 
-                $game->setStatus($result['status']);
-                $game->setArmyId($attackingArmy);
-                $game->setGameLog($log);
-                $this->em->persist($game);
+                $gameLog->setLog([$body]);
+                $gameLog->setGame($game);
+                $this->em->persist($gameLog);
                 $this->em->flush();
 
                 return new Response(sprintf(
                     'Army: %s attacked Army: %s and made %s units damage. Armies left: %s',
-                        $result['attackingArmy']['army_name'],
-                        $result['attackedArmy']['army_name'],
-                        $result['attackedArmy']['units_current'],
-                        $result['attackingArmy']['units_current']
+                        $battleData['attackingArmy']['army_name'],
+                        $battleData['attackedArmy']['army_name'],
+                        $battleData['attackedArmy']['units_current'],
+                        $battleData['attackingArmy']['units_current']
                     ));
             }
         }

@@ -5,17 +5,19 @@ namespace App\Service\BattleService\Command;
 use App\Entity\Army;
 use App\Service\BattleService\BattleAction;
 use App\Service\BattleService\Exception\ZeroArmiesCountException;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Common\Collections\Criteria;
 
 class FetchAttackedArmyCommand extends BattleAction
 {
     /** @var Army $army */
     private $army;
 
-    public function __construct(EntityManagerInterface $entityManager, Army $army)
+    /** @var Criteria $criteria */
+    private $criteria;
+
+    public function __construct(Criteria $criteria)
     {
-        $this->army = $army;
-        parent::__construct($entityManager);
+        $this->criteria = $criteria;
     }
 
     /**
@@ -24,7 +26,7 @@ class FetchAttackedArmyCommand extends BattleAction
      */
     public function __invoke()
     {
-        return $this->fetchAttackedArmyByStrategy($this->army);
+        return self::fetchAttackedArmyByStrategy($this->army);
     }
 
     /**
@@ -34,43 +36,38 @@ class FetchAttackedArmyCommand extends BattleAction
      */
     public function fetchAttackedArmyByStrategy($attackingArmy)
     {
+        $criteria = new Criteria();
+        $criteria
+            ->where(Criteria::expr()->neq('units', 0))
+            ->andWhere(Criteria::expr()->neq('id', $attackingArmy->getId()))
+            ->setMaxResults(1);
 
-        if ($attackingArmy->getAttackStrategy() === $this->army::ATTACK_WEAKEST) {
+        if ($attackingArmy->getAttackStrategy() === Army::ATTACK_WEAKEST) {
             $weakestArmy = $this->em
                 ->getRepository(Army::class)
-                ->findBy([
-//                    'id' => !$attackingArmy->getId(),
-//                    'units' => !false,
-                ], ['units' => 'ASC'], 1);
+                ->findBy([$criteria], ['units' => 'ASC']);
 
             if ($weakestArmy) {
                 return $weakestArmy;
             }
         }
 
-        if ($attackingArmy->getAttackStrategy() === $this->army::ATTACK_STRONGEST) {
+        if ($attackingArmy->getAttackStrategy() === Army::ATTACK_STRONGEST) {
             $strongestArmy = $this->em
                 ->getRepository(Army::class)
-                ->findBy([
-//                    'id' => !$attackingArmy->getId(),
-//                    'units' => !false,
-                ], ['units' => 'DESC'], 1);
-
+                ->findBy([$criteria], ['units' => 'DESC']);
 
             if ($strongestArmy) {
                 return $strongestArmy;
             }
         }
 
-        if ($attackingArmy->getAttackStrategy() === $this->army::ATTACK_RANDOM) {
+        if ($attackingArmy->getAttackStrategy() === Army::ATTACK_RANDOM) {
             $armies = $this->em
                 ->getRepository(Army::class)
-                ->findBy([
-                    'army_id !=' => $attackingArmy->getId(),
-                    'units !=' => 0,
-                ]);
+                ->findBy([$criteria]);
 
-            if (count($armies) > 1) {
+            if (count($armies) > 1 && !empty($armies)) {
                 foreach ($armies as $randomArmy) {
                     $armyId = mt_rand($randomArmy->getId());
 

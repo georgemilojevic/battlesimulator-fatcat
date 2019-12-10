@@ -4,16 +4,17 @@ namespace App\Service\BattleService\Command;
 
 use App\Entity\Army;
 use App\Service\BattleService\BattleAction;
+use App\Service\BattleService\Exception\ZeroArmiesCountException;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 class FetchAttackingArmyCommand extends BattleAction
 {
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        parent::__construct($entityManager);
-    }
-
+    /**
+     * @return object[]
+     * @throws ZeroArmiesCountException
+     */
     public function __invoke()
     {
         return $this->fetchArmy();
@@ -21,7 +22,18 @@ class FetchAttackingArmyCommand extends BattleAction
 
     public function fetchArmy()
     {
-        return $this->em->getRepository(Army::class)
-            ->find(9);
+        $criteria = new Criteria();
+        $criteria
+            ->where(Criteria::expr()->neq('units', 0))
+            ->orderBy(['id' => 'DESC'])
+            ->setMaxResults(1);
+
+        $army = $this->em->getRepository(Army::class)->findBy([$criteria]);
+
+        if (!$army) {
+            throw ZeroArmiesCountException::noArmiesLeftStanding();
+        }
+
+        return $army;
     }
 }

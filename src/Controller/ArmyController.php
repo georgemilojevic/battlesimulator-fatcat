@@ -8,7 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class ArmyController extends AbstractController
 {
     /**
-     * @Route("/army", name="army")
+     * @Route("/army/show", name="army-show")
      */
     public function indexAction()
     {

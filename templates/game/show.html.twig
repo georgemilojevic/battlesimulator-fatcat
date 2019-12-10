@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    {% for message in app.flashes('info') %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <div class="mb-4">
+                {{ message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <a href="" data-toggle="modal" data-target="#createGameModal" class="btn btn-outline-dark btn-lg">Add Army</a>
+            </div>
+            <div class="btn-group btn-group-lg col-md-8" role="group" aria-label="...">
+                <a href="/game/play" class="btn btn-outline-secondary">Start / Run</a>
+                <a href="/game/log{id}" class="btn btn-outline-secondary">Get Game Log</a>
+                <a href="/game/reset{id}" class="btn btn-outline-secondary">Reset Game</a>
+            </div>
+        </div>
+    </div>
+
+    {% include 'game/create-army-modal.html.twig' %}
+    {% block javascripts %}
+        {{ parent() }}
+    {% endblock %}
+
+    <script>
+        $('.alert').alert()
+    </script>
+{% endblock %}

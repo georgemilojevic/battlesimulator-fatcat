@@ -10,16 +10,10 @@ use App\Service\BattleService\BattleInterface;
 use App\Service\BattleService\Exception\NotEnoughArmiesException;
 use Doctrine\ORM\EntityManagerInterface;
 
-class CreateGameCommand extends BattleAction
+class StartGameCommand extends BattleAction
 {
-    /** @var Army $army */
-    private $army;
-
-    public function __construct(EntityManagerInterface $entityManager, Army $army)
-    {
-        parent::__construct($entityManager);
-        $this->army = $army;
-    }
+    /** @var Game $game */
+    private $game;
 
     /**
      * @return Game
@@ -27,34 +21,32 @@ class CreateGameCommand extends BattleAction
      */
     public function __invoke()
     {
-        return $this->createGame($this->army);
+        return self::start($this->game);
     }
 
     /**
-     * @param $attackingArmy
+     * @param $game Game
      * @return Game
      * @throws NotEnoughArmiesException
      */
-    public function createGame($attackingArmy)
+    public function start($game)
     {
-        $game = new Game();
-
         $army = $this->em->getRepository(Army::class)
             ->findAll();
 
-        if (count($army) <= 5) {
-            // should be thrown only once and only first time
-            throw NotEnoughArmiesException::lessThanFiveArmies();
+        if ($game->getStatus() !== Game::IN_PROGRESS) {
+            if (count($army) <= 5) {
+                $game->setStatus(Game::IN_PROGRESS);
+                $this->em->persist($game);
+                $this->em->flush();
+                // should be thrown only once and only first time
+                throw NotEnoughArmiesException::lessThanFiveArmies();
+            }
         }
 
         if (count($army) < 10) {
             throw NotEnoughArmiesException::lessThanTenArmies();
         }
-
-        $game->setStatus(Game::IN_PROGRESS);
-        $game->setArmyId($attackingArmy);
-        $this->em->persist($game);
-        $this->em->flush();
 
         return $game;
     }
