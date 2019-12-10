@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Army;
 use App\Entity\Game;
 use App\Form\ArmyType;
+use App\Service\BattleService\BattleAction;
 use App\Utils\BattleStrategy;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,12 +14,12 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class GameController extends AbstractController
 {
-    /** @var BattleStrategy $battleStrategy */
-    private $battleStrategy;
+    /** @var BattleAction $action */
+    private $action;
 
-    public function __construct(BattleStrategy $battleStrategy)
+    public function __construct(BattleAction $battleAction)
     {
-        $this->battleStrategy = $battleStrategy;
+        $this->action = $battleAction;
     }
 
     /**
@@ -55,7 +56,8 @@ class GameController extends AbstractController
      */
     public function startAction()
     {
-        $this->addFlash('warning', 'Once at least 10 armies have joined, the game can start.');
+        $this->action->attack();
+
         return $this->redirect('/');
     }
 

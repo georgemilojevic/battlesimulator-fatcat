@@ -68,7 +68,7 @@ class Game
         return $this->game_log;
     }
 
-    public function setGameLog(?array $game_log): self
+    public function setGameLog(?string $game_log): self
     {
         $this->game_log = $game_log;
 

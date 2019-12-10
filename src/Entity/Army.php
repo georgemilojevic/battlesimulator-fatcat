@@ -40,9 +40,6 @@ class Army
      */
     private $attack_strategy;
 
-    /** @var ArmyRepository $armyRepository */
-    private $armyRepository;
-
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Game", mappedBy="army_id")
      */
@@ -123,17 +120,5 @@ class Army
         }
 
         return $this;
-    }
-
-    public function findByIdDesc()
-    {
-        return $this->armyRepository->findOneBy(['id' => 'DESC']);
-    }
-
-    public function findByStrategy($strategy, $sortOrder, $limit)
-    {
-        return $this->armyRepository->findBy([
-            'attack_strategy' => $strategy,
-        ], ['units' => $sortOrder], $limit);
     }
 }
