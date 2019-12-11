@@ -25,20 +25,20 @@ class ResetGameCommand
     public function __invoke($game)
     {
         $firstLog = $this->em->getRepository(GameLog::class)
-            ->findBy(['game_id' => $game], ['id' => 'ASC'], 1);
+            ->findBy(['game' => $game], ['id' => 'ASC'], 1);
 
-        $data = json_decode($firstLog->getGameLog(), true);
+        $data = json_decode($firstLog[0]->getLog(), true);
         foreach ($data as $armyLog) {
-            $this->resetUnitsCount($armyLog['attackingArmy']['armyId'], $armyLog['attackingArmy']['units_previous']);
-            $this->resetUnitsCount($armyLog['attackedArmy']['armyId'], $armyLog['attackedArmy']['units_previous']);
+            $this->resetUnitsCount($armyLog['armyId'], $armyLog['units_previous']);
+            $this->resetUnitsCount($armyLog['armyId'], $armyLog['units_previous']);
         }
 
         /** @var Game $gameReset */
-        $gameReset[] = $this->em->getRepository(Game::class)
+        $gameReset = $this->em->getRepository(Game::class)
             ->findBy(['id' => $game->getId()]);
 
-        foreach ($gameReset as $log) {
-            $this->em->remove($log);
+        foreach ($gameReset as $reset) {
+            $this->em->remove($reset);
             $this->em->flush();
         }
 
@@ -49,10 +49,10 @@ class ResetGameCommand
      * @param $id
      * @param $units
      */
-    public function resetUnitsCount($id, $units)
+    private function resetUnitsCount($id, $units)
     {
         /** @var Army $army */
-        $army = $this->em->getRepository(Army::class)->findBy(['id' => $id]);
+        $army = $this->em->getRepository(Army::class)->find($id);
         $army->setUnits($units);
         $this->em->persist($army);
         $this->em->flush();

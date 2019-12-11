@@ -20,8 +20,8 @@
             </div>
             <div class="btn-group btn-group-lg col-md-8" role="group" aria-label="...">
                 <a href="{{ path('start-game', { game_id: game.id}) }}" class="btn btn-outline-secondary">Start / Run</a>
-                <a href="/game/log{id}" class="btn btn-outline-secondary">Get Game Log</a>
-                <a href="/game/reset{id}" class="btn btn-outline-secondary">Reset Game</a>
+                <a href="{{ path('get-game-log', { id: game.id }) }}" class="btn btn-outline-secondary">Get Game Log</a>
+                <a href="{{ path('reset-game', { game_id: game.id }) }}" class="btn btn-outline-secondary">Reset Game</a>
             </div>
         </div>
     </div>

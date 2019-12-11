@@ -82,9 +82,4 @@ class BattleAction
 
         return $response;
     }
-
-//    public function reset($id)
-//    {
-//        return ($this->ResetGame)($id);
-//    }
 }

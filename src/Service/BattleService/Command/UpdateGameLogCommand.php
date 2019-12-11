@@ -38,7 +38,7 @@ class UpdateGameLogCommand
                 $result['attackingArmy']['units_current']
             );
 
-            $gameLog->setLog([$response->getContent()]);
+            $gameLog->setLog($response->getContent());
             $gameLog->setGame($game);
             $this->em->persist($gameLog);
             $this->em->flush();

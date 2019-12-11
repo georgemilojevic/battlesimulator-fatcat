@@ -43,12 +43,12 @@ class GameLog
         return $this;
     }
 
-    public function getLog(): ?array
+    public function getLog()
     {
         return $this->log;
     }
 
-    public function setLog(?array $log): self
+    public function setLog($log): self
     {
         $this->log = $log;
 

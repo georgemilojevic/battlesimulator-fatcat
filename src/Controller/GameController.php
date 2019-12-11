@@ -6,6 +6,7 @@ use App\Entity\Army;
 use App\Entity\Game;
 use App\Form\ArmyType;
 use App\Service\BattleService\BattleAction;
+use App\Service\BattleService\BattleReset;
 use App\Service\BattleService\Exception\ExceptionInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,9 +21,13 @@ class GameController extends AbstractController
     /** @var BattleAction $battleAction */
     private $battleAction;
 
-    public function __construct(BattleAction $battleAction)
+    /** @var BattleReset $battleReset */
+    private $battleReset;
+
+    public function __construct(BattleAction $battleAction, BattleReset $battleReset)
     {
         $this->battleAction = $battleAction;
+        $this->battleReset = $battleReset;
     }
 
     /**
@@ -104,5 +109,23 @@ class GameController extends AbstractController
     {
         $games = $this->getDoctrine()->getRepository(Game::class)->findAll();
         return $this->render('game/list.html.twig', ['games' => $games]);
+    }
+
+    /**
+     * @ParamConverter("game", options={"id" = "game_id"})
+     * @Route("/game/reset/{game_id}", name="reset-game")
+     */
+    public function resetGame(Game $game)
+    {
+        try {
+            $response = ($this->battleReset)($game);
+            if ($response) {
+                $this->addFlash('info', $response->getContent());
+            }
+        } catch (ExceptionInterface $exception) {
+            $this->addFlash('info', $exception->getMessage());
+        }
+
+        return $this->redirectToRoute('show-game', ['id' => $game->getId()]);
     }
 }

@@ -70,7 +70,7 @@ class FetchAttackedArmyCommand
                 ->from(Army::class, 'a')
                 ->where('a.units > 0')
                 ->andWhere('a.game = :game')
-                ->andWhere('a.id !== :army')
+                ->andWhere('a.id != :army')
                 ->setParameter('army', $army)
                 ->setParameter('game', $game)
                 ->getQuery()
@@ -78,10 +78,10 @@ class FetchAttackedArmyCommand
 
             if (!empty($armies) && count($armies) > 1) {
                 foreach ($armies as $randomArmy) {
-                    $armyId = mt_rand($randomArmy->getId());
+                    $armyId = random_int($randomArmy->getId(), $randomArmy->getId());
 
                     $randomArmy = $this->em->getRepository(Army::class)->find($armyId);
-                    return $randomArmy[0];
+                    return $randomArmy;
                 }
             }
         }
