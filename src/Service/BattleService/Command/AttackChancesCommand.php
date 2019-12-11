@@ -9,14 +9,14 @@ class AttackChancesCommand
 {
     /**
      * @param Army $army
-     * @return bool
+     * @return object
      * @throws ChancesException
      */
     public function __invoke(Army $army)
     {
-        $chances = mt_rand(0, 100);
+        $chances = random_int(0, 100);
         if ($chances < $army->getUnits()) {
-            return true;
+            return;
         }
 
         throw ChancesException::unsuccessfulAttack();

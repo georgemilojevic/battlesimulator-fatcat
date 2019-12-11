@@ -19,11 +19,11 @@ class BattleAction
     /** @var EntityManagerInterface $em */
     protected $em;
 
-    /** @var FetchAttackingArmyCommand $FetchAttackingArmy */
-    private $FetchAttackingArmy;
-
     /** @var StartGameCommand $StartGame */
     private $StartGame;
+
+    /** @var FetchAttackingArmyCommand $FetchAttackingArmy */
+    private $FetchAttackingArmy;
 
     /** @var AttackChancesCommand $AttackChances */
     private $AttackChances;
@@ -42,8 +42,8 @@ class BattleAction
 
     public function __construct(
         EntityManagerInterface $entityManager,
-        FetchAttackedArmyCommand $fetchAttackingArmy,
         StartGameCommand $startGame,
+        FetchAttackedArmyCommand $fetchAttackingArmy,
         AttackChancesCommand $attackChances,
         FetchAttackedArmyCommand $fetchAttackedArmy,
         BattleCommand $battle,
@@ -63,7 +63,7 @@ class BattleAction
 
     /**
      * @param $game
-     * @return mixed
+     * @return \Symfony\Component\HttpFoundation\Response
      * @throws ChancesException
      * @throws Exception\NotEnoughArmiesException
      * @throws Exception\ZeroArmiesCountException

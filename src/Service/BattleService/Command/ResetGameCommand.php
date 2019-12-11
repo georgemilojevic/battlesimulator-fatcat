@@ -37,8 +37,8 @@ class ResetGameCommand
         $gameReset[] = $this->em->getRepository(Game::class)
             ->findBy(['id' => $game->getId()]);
 
-        foreach ($gameReset as $game) {
-            $this->em->remove($game);
+        foreach ($gameReset as $log) {
+            $this->em->remove($log);
             $this->em->flush();
         }
 

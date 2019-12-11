@@ -21,7 +21,7 @@ class BattleCommand
      * @param $attackingArmy Army
      * @return Response
      */
-    public function __invoke($attackedArmy, $attackingArmy)
+    public function __invoke(Army $attackedArmy, Army $attackingArmy)
     {
         $attackedArmyUnits = $attackedArmy[0]->getUnits();
         $attackingArmyUnits = $attackingArmy->getUnits();

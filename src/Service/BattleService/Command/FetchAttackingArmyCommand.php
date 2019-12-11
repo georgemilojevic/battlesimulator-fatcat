@@ -30,7 +30,7 @@ class FetchAttackingArmyCommand
             ->where(Criteria::expr()->neq('units', 0))
             ->andWhere(Criteria::expr()->eq('game_id', $game->getId()))
             ->orderBy(['id' => 'DESC'])
-            ->setMaxResults(1);
+            ->setMaxResults(2);
 
         $army = $this->em->getRepository(Army::class)->findBy([$criteria]);
 

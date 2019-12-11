@@ -12,6 +12,7 @@ services:
         exclude: '../src/{DependencyInjection,Migrations,Tests,Kernel.php}'
 
     App\Service\BattleService\:
+        autowire: true
         resource: '../src/Service/BattleService/*'
         tags: ['controller.service_arguments']
 

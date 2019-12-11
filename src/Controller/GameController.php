@@ -10,7 +10,10 @@ use App\Service\BattleService\Exception\ExceptionInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Entity;
 
 class GameController extends AbstractController
 {
@@ -27,7 +30,7 @@ class GameController extends AbstractController
      *
      * @Route("/game/create", name="create-game")
      */
-    public function createGame()
+    public function createGame(): RedirectResponse
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -76,26 +79,25 @@ class GameController extends AbstractController
     }
 
     /**
-     * @param BattleAction $battleAction
-     * @return string
-     *
-     * @Route("/start-game", name="start-game")
+     * @ParamConverter("game", options={"id" = "game_id"})
+     * @Route("/game/start/{game_id}", name="start-game")
      */
-    public function startAction(BattleAction $battleAction, $game)
+    public function startAction(Game $game)
     {
         try {
-            ($battleAction)($game);
+            ($this->battleAction)($game);
         } catch (ExceptionInterface $exception) {
             $this->addFlash('info', $exception->getMessage());
         }
 
-        return $this->render('game/show.html.twig', []);
+        return $this->redirectToRoute('show-game', ['id' => $game->getId()]);
     }
 
     /**
+     * @return Response
      * @Route("/list-all", name="list-all-games")
      */
-    public function listGamesAction()
+    public function listGamesAction(): Response
     {
         $games = $this->getDoctrine()->getRepository(Game::class)->findAll();
         return $this->render('game/list.html.twig', ['games' => $games]);

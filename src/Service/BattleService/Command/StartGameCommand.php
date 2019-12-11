@@ -28,16 +28,16 @@ class StartGameCommand
     public function __invoke(Game $game)
     {
         $army = $this->em->getRepository(Army::class)
-            ->findAll();
+            ->findBy([
+                'game' => $game,
+            ]);
 
-        if ($game->getStatus() !== Game::IN_PROGRESS) {
-            if (count($army) <= 5) {
-                $game->setStatus(Game::IN_PROGRESS);
-                $this->em->persist($game);
-                $this->em->flush();
-                // should be thrown only once and only first time
-                throw NotEnoughArmiesException::lessThanFiveArmies();
-            }
+        if ($game->getStatus() !== Game::IN_PROGRESS && count($army) <= 5) {
+            $game->setStatus(Game::IN_PROGRESS);
+            $this->em->persist($game);
+            $this->em->flush();
+
+            throw NotEnoughArmiesException::lessThanFiveArmies();
         }
 
         if (count($army) < 10) {

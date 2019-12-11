@@ -18,19 +18,19 @@ class FetchAttackedArmyCommand
     }
 
     /**
-     * @param Army $attackingArmy
+     * @param Army $army
      * @return mixed
      * @throws ZeroArmiesCountException
      */
-    public function __invoke(Army $attackingArmy)
+    public function __invoke(Army $army)
     {
         $criteria = new Criteria();
         $criteria
             ->where(Criteria::expr()->neq('units', 0))
-            ->andWhere(Criteria::expr()->neq('id', $attackingArmy->getId()))
+            ->andWhere(Criteria::expr()->neq('id', $army->getId()))
             ->setMaxResults(1);
 
-        if ($attackingArmy->getAttackStrategy() === Army::ATTACK_WEAKEST) {
+        if ($army->getAttackStrategy() === Army::ATTACK_WEAKEST) {
             $weakestArmy = $this->em
                 ->getRepository(Army::class)
                 ->findBy([$criteria], ['units' => 'ASC']);
@@ -40,7 +40,7 @@ class FetchAttackedArmyCommand
             }
         }
 
-        if ($attackingArmy->getAttackStrategy() === Army::ATTACK_STRONGEST) {
+        if ($army->getAttackStrategy() === Army::ATTACK_STRONGEST) {
             $strongestArmy = $this->em
                 ->getRepository(Army::class)
                 ->findBy([$criteria], ['units' => 'DESC']);
@@ -50,7 +50,7 @@ class FetchAttackedArmyCommand
             }
         }
 
-        if ($attackingArmy->getAttackStrategy() === Army::ATTACK_RANDOM) {
+        if ($army->getAttackStrategy() === Army::ATTACK_RANDOM) {
             $armies = $this->em
                 ->getRepository(Army::class)
                 ->findBy([$criteria]);

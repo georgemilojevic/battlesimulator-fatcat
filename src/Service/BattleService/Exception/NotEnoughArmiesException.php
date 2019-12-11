@@ -9,6 +9,14 @@ class NotEnoughArmiesException extends \Exception implements ExceptionInterface
     /**
      * @return NotEnoughArmiesException
      */
+    public static function noArmiesAdded(): self
+    {
+        return new self(sprintf('You haven\'t added any armies'));
+    }
+
+    /**
+     * @return NotEnoughArmiesException
+     */
     public static function lessThanTenArmies(): self
     {
         return new self(sprintf('Army count must be at least 10 in game'));
