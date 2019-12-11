@@ -86,10 +86,13 @@ class GameController extends AbstractController
     {
         try {
             $response = ($this->battleAction)($game);
+            if ($response) {
+                $this->addFlash('info', $response->getContent());
+            }
         } catch (ExceptionInterface $exception) {
             $this->addFlash('info', $exception->getMessage());
         }
-        $this->addFlash('info', $response->getContent());
+
         return $this->redirectToRoute('show-game', ['id' => $game->getId()]);
     }
 

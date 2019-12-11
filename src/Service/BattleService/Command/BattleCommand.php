@@ -17,36 +17,39 @@ class BattleCommand
     }
 
     /**
-     * @param $attackedArmy Army
+     * @param $armyUnderSiege Army
      * @param $attackingArmy Army
      * @return Response
      */
-    public function __invoke(Army $attackedArmy, Army $attackingArmy)
+    public function __invoke(Army $armyUnderSiege, Army $attackingArmy)
     {
-        $attackedArmyUnits = $attackedArmy->getUnits();
+        $unitsUnderSiege = $armyUnderSiege->getUnits();
         $attackingArmyUnits = $attackingArmy->getUnits();
 
-        ini_set("precision", 3);
-        $damagedArmyUnitsLeft = $attackingArmyUnits / 2;
+        $damagedArmyUnitsLeft = $unitsUnderSiege / 2;
 
         $attackingArmyUnitsLeft = $attackingArmyUnits - ceil($damagedArmyUnitsLeft);
 
-        if ($attackedArmyUnits === 1) {
-            $damagedArmyUnitsLeft = 0;
+        if ($attackingArmyUnitsLeft <= 1) {
+            $attackingArmyUnitsLeft = max($attackingArmyUnitsLeft, 0);
         }
 
-        $attackedArmy->setUnits($damagedArmyUnitsLeft);
-        $this->em->persist($attackedArmy);
+        if ($damagedArmyUnitsLeft <= 1 ) {
+            $damagedArmyUnitsLeft = max($damagedArmyUnitsLeft, 0);
+        }
+
+        $armyUnderSiege->setUnits($damagedArmyUnitsLeft);
+        $this->em->persist($armyUnderSiege);
         $attackingArmy->setUnits($attackingArmyUnitsLeft);
         $this->em->persist($attackingArmy);
         $this->em->flush();
 
         $body = json_encode([
             'attackedArmy' => [
-                'armyId' => $attackedArmy->getId(),
-                'army_name' => $attackedArmy->getName(),
-                'units_previous' => $attackedArmyUnits,
-                'units_current' => $attackedArmy->getUnits(),
+                'armyId' => $armyUnderSiege->getId(),
+                'army_name' => $armyUnderSiege->getName(),
+                'units_previous' => $unitsUnderSiege,
+                'units_current' => $armyUnderSiege->getUnits(),
             ],
             'attackingArmy' => [
                 'armyId' => $attackingArmy->getId(),

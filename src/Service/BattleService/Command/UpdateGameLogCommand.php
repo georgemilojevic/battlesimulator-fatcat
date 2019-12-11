@@ -25,31 +25,13 @@ class UpdateGameLogCommand
      */
     public function __invoke(Response $response, Game $game)
     {
-        $body = [];
         if ($response->getContent()) {
             $result = json_decode($response->getContent(), true);
 
             $gameLog = new GameLog();
-            foreach ($result as $battleData) {
-
-//                $body = json_encode([
-//                    'attackingArmy' => [
-//                        'armyId' => $battleData['attackingArmy']['armyId'],
-//                        'attacking_army_name' => $battleData['attackingArmy']['army_name'],
-//                        'units_previous' => $battleData['attackingArmy']['units_previous'],
-//                        'units_current' => $battleData['attackingArmy']['units_current'],
-//                    ],
-//                    'attackedArmy' => [
-//                        'armyId' => $battleData['attackedArmy']['armyId'],
-//                        'attacked_army_name' => $battleData['attackedArmy']['army_name'],
-//                        'units_previous' => $battleData['attackedArmy']['units_previous'],
-//                        'units_current' => $battleData['attackedArmy']['units_current'],
-//                    ],
-//                ]);
-            }
 
             $responseMessage = sprintf(
-                'Army: %s attacked Army: %s and made %s units damage. Armies left: %s',
+                'Army: %s ~ attacked Army: %s; Damage made %s; Units left: %s',
                 $result['attackingArmy']['army_name'],
                 $result['attackedArmy']['army_name'],
                 $result['attackedArmy']['units_current'],

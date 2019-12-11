@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Army;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\RangeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -17,10 +18,9 @@ class ArmyType extends AbstractType
     {
         $builder
             ->add('name', TextType::class)
-            ->add('units', IntegerType::class)
+            ->add('units', RangeType::class, [ 'attr' => [ 'min' => 80, 'max' => 100 ] ])
             ->add('attack_strategy', ChoiceType::class, [
                 'choices' => [
-                    'Choose Attack Strategy' => 'default',
                     'Weakest' => Army::ATTACK_WEAKEST,
                     'Strongest' => Army::ATTACK_STRONGEST,
                     'Random' => Army::ATTACK_RANDOM,
