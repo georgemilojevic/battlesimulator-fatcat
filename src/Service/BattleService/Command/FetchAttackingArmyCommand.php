@@ -25,19 +25,21 @@ class FetchAttackingArmyCommand
      */
     public function __invoke(Game $game)
     {
-        $criteria = new Criteria();
-        $criteria
-            ->where(Criteria::expr()->neq('units', 0))
-            ->andWhere(Criteria::expr()->eq('game_id', $game->getId()))
-            ->orderBy(['id' => 'DESC'])
-            ->setMaxResults(2);
-
-        $army = $this->em->getRepository(Army::class)->findBy([$criteria]);
+        $army = $this->em->createQueryBuilder()
+            ->select('a')
+            ->from(Army::class, 'a')
+            ->where('a.units IS NOT NULL')
+            ->andWhere('a.game = :game')
+            ->setParameter('game', $game)
+            ->orderBy('a.id', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getResult();
 
         if (!$army) {
             throw ZeroArmiesCountException::noArmiesLeftStanding();
         }
 
-        return $army;
+        return $army[0];
     }
 }

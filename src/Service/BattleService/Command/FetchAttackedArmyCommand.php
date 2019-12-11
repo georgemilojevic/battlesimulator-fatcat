@@ -3,6 +3,7 @@
 namespace App\Service\BattleService\Command;
 
 use App\Entity\Army;
+use App\Entity\Game;
 use App\Service\BattleService\Exception\ZeroArmiesCountException;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,47 +20,68 @@ class FetchAttackedArmyCommand
 
     /**
      * @param Army $army
+     * @param Game $game
      * @return mixed
      * @throws ZeroArmiesCountException
      */
-    public function __invoke(Army $army)
+    public function __invoke(Army $army, Game $game)
     {
-        $criteria = new Criteria();
-        $criteria
-            ->where(Criteria::expr()->neq('units', 0))
-            ->andWhere(Criteria::expr()->neq('id', $army->getId()))
-            ->setMaxResults(1);
-
         if ($army->getAttackStrategy() === Army::ATTACK_WEAKEST) {
-            $weakestArmy = $this->em
-                ->getRepository(Army::class)
-                ->findBy([$criteria], ['units' => 'ASC']);
+            $weakestArmy = $this->em->createQueryBuilder()
+                ->select('a')
+                ->from(Army::class, 'a')
+                ->where('a.units IS NOT NULL')
+                ->andWhere('a.game = :game')
+                ->andWhere('a.id != :army')
+                ->setParameter('army', $army)
+                ->setParameter('game', $game)
+                ->orderBy('a.units', 'ASC')
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getResult();
 
             if ($weakestArmy) {
-                return $weakestArmy;
+                return $weakestArmy[0];
             }
         }
 
         if ($army->getAttackStrategy() === Army::ATTACK_STRONGEST) {
-            $strongestArmy = $this->em
-                ->getRepository(Army::class)
-                ->findBy([$criteria], ['units' => 'DESC']);
+            $strongestArmy = $this->em->createQueryBuilder()
+                ->select('a')
+                ->from(Army::class, 'a')
+                ->where('a.units IS NOT NULL')
+                ->andWhere('a.game = :game')
+                ->andWhere('a.id != :army')
+                ->setParameter('army', $army)
+                ->setParameter('game', $game)
+                ->orderBy('a.units', 'DESC')
+                ->setMaxResults(1)
+                ->getQuery()
+                ->getResult();
 
             if ($strongestArmy) {
-                return $strongestArmy;
+                return $strongestArmy[0];
             }
         }
 
         if ($army->getAttackStrategy() === Army::ATTACK_RANDOM) {
-            $armies = $this->em
-                ->getRepository(Army::class)
-                ->findBy([$criteria]);
+            $armies = $this->em->createQueryBuilder()
+                ->select('a')
+                ->from(Army::class, 'a')
+                ->where('a.units IS NOT NULL')
+                ->andWhere('a.game = :game')
+                ->andWhere('a.id != :army')
+                ->setParameter('army', $army)
+                ->setParameter('game', $game)
+                ->getQuery()
+                ->getResult();
 
-            if (count($armies) > 1 && !empty($armies)) {
+            if (!empty($armies) && count($armies) > 1) {
                 foreach ($armies as $randomArmy) {
                     $armyId = mt_rand($randomArmy->getId());
 
-                    return $this->em->getRepository(Army::class)->find($armyId);
+                    $randomArmy = $this->em->getRepository(Army::class)->find($armyId);
+                    return $randomArmy[0];
                 }
             }
         }

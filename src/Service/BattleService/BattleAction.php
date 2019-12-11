@@ -2,8 +2,6 @@
 
 namespace App\Service\BattleService;
 
-use App\Entity\Army;
-use App\Entity\Game;
 use App\Service\BattleService\Command\AttackChancesCommand;
 use App\Service\BattleService\Command\BattleCommand;
 use App\Service\BattleService\Command\StartGameCommand;
@@ -43,7 +41,7 @@ class BattleAction
     public function __construct(
         EntityManagerInterface $entityManager,
         StartGameCommand $startGame,
-        FetchAttackedArmyCommand $fetchAttackingArmy,
+        FetchAttackingArmyCommand $fetchAttackingArmy,
         AttackChancesCommand $attackChances,
         FetchAttackedArmyCommand $fetchAttackedArmy,
         BattleCommand $battle,
@@ -76,7 +74,8 @@ class BattleAction
 
         ($this->AttackChances)($attackingArmy);
 
-        $attackedArmy = ($this->FetchAttackedArmy)($attackingArmy);
+        $attackedArmy = ($this->FetchAttackedArmy)($attackingArmy, $game);
+
         $result = ($this->Battle)($attackingArmy, $attackedArmy);
 
         $response = ($this->UpdateGameLog)($result, $game);

@@ -22,7 +22,7 @@ class StartGameCommand
 
     /**
      * @param Game $game
-     * @return Game
+     * @return bool
      * @throws NotEnoughArmiesException
      */
     public function __invoke(Game $game)
@@ -44,6 +44,6 @@ class StartGameCommand
             throw NotEnoughArmiesException::lessThanTenArmies();
         }
 
-        return $game;
+        return true;
     }
 }
